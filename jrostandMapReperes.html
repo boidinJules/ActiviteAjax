@@ -1,23 +1,84 @@
-<html></html>
-  <head>
-    <title>Simple Markers</title>
 
-    <link rel="stylesheet" type="text/css" href="./jrostand.css" />
-    <script type="module" src="./jrostand.js"></script>
-  </head>
-  <body>
-    <div id="map"></div>
+<!DOCTYPE html >
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>json Employes</title>
+</head>
+<body>
 
-    <!-- 
-      The `defer` attribute causes the script to execute after the full HTML
-      document has been parsed. For non-blocking uses, avoiding race conditions,
-      and consistent behavior across browsers, consider loading using Promises. See
-      https://developers.google.com/maps/documentation/javascript/load-maps-js-api
-      for more information.
-      -->
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7Y32T_PJHZxYcK3BJYJFNwSl6cuvLXpo&callback=initMap&v=weekly"
-      defer
-    ></script>
-  </body>
+<h1>JRostand Reperes Stade</h1>
+<hr>
+<div id="map">...</div>
+<style type="text/css">
+    /* Always set the map height explicitly to define the size of the div
+     * element that contains the map. */
+    #map {
+        height: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<script   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7Y32T_PJHZxYcK3BJYJFNwSl6cuvLXpo&callback=initMap" async defer></script>
+<script  src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    let map;
+    // au chargement de la page
+
+    function initMap() {
+        const myLatLng = { lat: 48.95842318055254, lng: 2.5470810423980086 };
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 10,
+            center: myLatLng,
+        });
+        loadDoc();
+    }
+    // Ajax avec JQuery
+    function loadDoc() {
+        $.ajax({
+                url: "markersJrostand.json",
+                method: "GET",
+                dataType: "json",
+                success: function(markers){
+                    let markerPositions = [];
+
+                    for (let i = 0; i < markers.length; i++) {
+                        const marker = markers[i];
+                        console.log(marker.lat + ", " + marker.lng)
+
+                        const markerPosition = { lat: marker.lat, lng: marker.lng };
+                        markerPositions.push(markerPosition); // Stocker la position
+
+                        new google.maps.Marker({
+                            position: { lat: marker.lat, lng: marker.lng },
+                            map: map,
+                            title: "Marker " + (i + 1)
+                    });
+                }
+
+                const polyline = new google.maps.Polyline({
+                    path: markerPositions,
+                    geodesic: true,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2,
+                });
+
+                polyline.setMap(map);
+            }
+        });
+    }
+
+    window.onload = initMap;
+</script>
+
+</body>
 </html>
